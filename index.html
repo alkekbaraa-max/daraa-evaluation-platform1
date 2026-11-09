@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة التقييم الموقفي والملاءمة الوظيفية - الموظفين</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- مكتبات Firebase المتوافقة (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+        // إعدادات الـ Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFkLtaVhEUSyPENljdPj-u2FISjuE7K_A",
+            authDomain: "daraa-e2d2e.firebaseapp.com",
+            databaseURL: "https://daraa-e2d2e-default-rtdb.firebaseio.com",
+            projectId: "daraa-e2d2e",
+            storageBucket: "daraa-e2d2e.firebasestorage.app",
+            messagingSenderId: "1000620249005",
+            appId: "1:1000620249005:web:d95923726b7c514de09b24",
+            measurementId: "G-RTCYP2L5TG"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+
+    <style>
+        :root {
+            --primary-color: #1A3E2F;
+            --primary-hover: #12281D;
+            --secondary-color: #4A6B53;
+            --accent-color: #C8BFA8;
+            --bg-color: #FAF8F3;
+            --card-bg: #FFFFFF;
+            --text-color: #2D3748;
+            --border-color: #C8BFA8;
+            --success-color: #276749;
+            --error-color: #C53030;
+        }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; direction: rtl; line-height: 1.6; }
+        .container { max-width: 950px; margin: 0 auto; background-color: var(--card-bg); padding: 35px; border-radius: 14px; box-shadow: 0 10px 30px rgba(26, 62, 47, 0.08); border: 2px solid var(--primary-color); }
+        .header { text-align: center; border-bottom: 3.5px double var(--primary-color); padding-bottom: 20px; margin-bottom: 25px; }
+        .header h1 { color: var(--primary-color); margin: 0 0 6px 0; font-size: 1.6rem; font-weight: 800; }
+        .header h2 { color: var(--secondary-color); margin: 0 0 6px 0; font-size: 1.15rem; font-weight: 700; }
+        .header p { margin: 0; font-size: 0.9rem; color: #4A5568; font-weight: bold; }
+        .nav-tabs { display: flex; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); }
+        .tab-btn { padding: 12px 24px; background-color: #EFEBE4; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 700; color: var(--primary-color); font-size: 0.95rem; }
+        .tab-btn.active { background-color: var(--primary-color); color: #FFFFFF; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .info-card { background-color: var(--bg-color); padding: 25px; border-radius: 10px; border: 1.5px solid var(--border-color); margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full-width { grid-column: span 2; }
+        label { font-weight: 700; margin-bottom: 8px; color: var(--primary-color); font-size: 0.95rem; }
+        input[type="text"], input[type="tel"], select { padding: 12px; border: 1.5px solid #CBD5E0; border-radius: 6px; font-size: 0.95rem; background-color: #FFF; outline: none; }
+        input:focus, select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(26, 62, 47, 0.15); }
+        .wizard-progress { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #EFEBE4; padding: 12px 20px; border-radius: 8px; font-weight: 700; color: var(--primary-color); }
+        .progress-bar-container { width: 100%; height: 10px; background-color: #E2E8F0; border-radius: 5px; margin-bottom: 25px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; background-color: var(--primary-color); transition: width 0.3s ease; }
+        .question-card { background-color: #FFF; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 25px; margin-bottom: 25px; }
+        .question-title { font-weight: 700; color: var(--primary-color); font-size: 1.1rem; line-height: 1.7; margin-bottom: 20px; }
+        .options-container { display: flex; flex-direction: column; gap: 12px; }
+        .option-label { display: flex; align-items: flex-start; padding: 14px; border: 1.5px solid #CBD5E0; border-radius: 8px; cursor: pointer; background-color: var(--bg-color); font-size: 0.95rem; font-weight: 600; }
+        .option-label:hover { background-color: #EFEBE4; border-color: var(--primary-color); }
+        .option-label input { margin-left: 14px; margin-top: 5px; }
+        .wizard-nav-btns { display: flex; justify-content: space-between; gap: 15px; }
+        .btn { padding: 12px 24px; font-size: 0.95rem; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-secondary { background-color: #718096; color: white; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .instruction-box { background-color: var(--bg-color); border-right: 6px solid var(--primary-color); padding: 20px; border-radius: 6px; margin-bottom: 20px; border-top: 1px solid var(--border-color); border-left: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+        .error-banner { background-color: #FFF5F5; color: var(--error-color); padding: 12px; border: 1px solid var(--error-color); border-radius: 6px; margin-bottom: 15px; font-weight: 700; display: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>الجمهورية العربية السورية - محافظة درعا</h1>
+        <h2>مديرية التنمية الإدارية الفرعية بدرعا</h2>
+        <p>دليل التقييم الموقفي والملاءمة الوظيفية أثناء المقابلة الشفهية</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('guide-tab')">الهدف والإرشادات الرسمية</button>
+        <button class="tab-btn" onclick="switchTab('test-tab')">استبيان تقييم الموظف</button>
+    </div>
+
+    <div id="guide-tab" class="view-section active">
+        <div class="instruction-box">
+            <h3 style="color: var(--primary-color); margin-top:0;">التعريف باختبار التقييم الموقفي:</h3>
+            <p style="font-size: 1rem; line-height: 1.7;">يُعد هذا الاختبار جزءاً أساسياً ومكملاً للمقابلة الشفهية الخاصة بالمتقدمين على الشواغر الوظيفية بمديرية التنمية الإدارية بمحافظة درعا، ويهدف لتحديد الملاءمة الدقيقة بين السمات الشخصية والسلوكية للمتقدم والشاغر المستهدف.</p>
+        </div>
+        <div class="info-card">
+            <h3 style="color: var(--primary-color); margin-top:0; border-bottom: 2px solid var(--primary-color); padding-bottom: 6px;">الأهداف التشخيصية للمنصة والنظام:</h3>
+            <ul style="font-size: 0.95rem; line-height: 1.8;">
+                <li><strong>التسكين والدقة:</strong> قياس مدى ملاءمة المتقدم للشاغر المطلوب بدقة متناهية بناءً على الهيكلية التنظيمية المعتمدة لدرعا.</li>
+                <li><strong>دعم لجنة المقابلة:</strong> تزويد أخصائي المقابلات بقراءة تشخيصية موضوعية تساعد في اتخاذ القرار الشفاف والمنطقي.</li>
+                <li><strong>الاستثمار الأمثل للكوادر:</strong> توجيه المتقدمين إلى البيئة والشاغر الوظيفي الذي يتطابق مع قدراتهم ونمط عملهم الطبيعي.</li>
+            </ul>
+        </div>
+        <div class="instruction-box" style="border-right-color: var(--success-color);">
+            <h4 style="color: var(--success-color); margin-top:0; font-size: 1.1rem;">تعليمات هامة أثناء الإجابة:</h4>
+            <p style="font-weight: 700; font-size: 1rem;">"هذا الاختبار هو اختبار شخصية وسلوك موقفي، <strong>وليس هناك إجابة صحيحة وأخرى خاطئة</strong>.<br>المطلوب اختيار <strong>أول ما يدور في ذهنك</strong> دون تفكير مبالغ فيه أو تصنع، لضمان قياس النمط الحقيقي والمطابقة الدقيقة."</p>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="switchTab('test-tab')">الانتقال لتعبئة استبيان تقييم الموظف ←</button>
+    </div>
+
+    <div id="test-tab" class="view-section">
+        <div id="employee-info-step">
+            <div class="info-card">
+                <h3 style="color: var(--primary-color); margin-top: 0; border-bottom: 2px solid var(--primary-color); padding-bottom: 8px;">
+                    أولاً: البيانات الشخصية والشاغر الحالي المعتمد (هيكلية درعا)
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>الاسم الكامل الثلاثي للموظف/المرشح: *</label>
+                        <input type="text" id="empName" placeholder="أدخل الاسم الثلاثي">
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الجوال الشخصي: *</label>
+                        <input type="tel" id="empPhone" placeholder="09xxxxxxxx">
+                    </div>
+                    <div class="form-group">
+                        <label>المؤهل العلمي والاختصاص: *</label>
+                        <input type="text" id="empEdu" placeholder="مثال: إجازة في الاقتصاد، هندسة...">
+                    </div>
+                    <div class="form-group">
+                        <label>سنوات الخبرة العملية: *</label>
+                        <input type="text" id="empExp" placeholder="مثال: 3 سنوات">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>الشاغر الوظيفي المتقدم عليه (من الهيكل الوظيفي المعتمد): *</label>
+                        <select id="empJobSelect" onchange="checkNewJobOption(this.value)">
+                            <option value="">-- اختر الشاغر المعتمد بمحافظة درعا --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="new-job-custom-card" style="display: none; margin-top: 15px; background: #FFF; padding: 15px; border-radius: 8px; border: 1.5px dashed var(--primary-color);">
+                    <h4 style="color: var(--primary-color); margin-top:0;">إضافة شاغر وظيفي جديد للهيكلية:</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>اسم الشاغر الجديد:</label>
+                            <input type="text" id="newJobTitle" placeholder="مثال: رئيس شعبة الأرشيف الرقمي">
+                        </div>
+                        <div class="form-group">
+                            <label>اسم الدائرة التابعة لها:</label>
+                            <input type="text" id="newJobDept" placeholder="مثال: دائرة بيانات الموارد البشرية">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>الاختصاص المطلوب:</label>
+                            <input type="text" id="newJobSpec" placeholder="مثال: معلوماتية، إدارة، حقوق">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" style="margin-top: 10px;" onclick="addNewJobToStructure()">إضافة الشاغر واعتماده</button>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="startWizard()">البدء بالإجابة على استبيان السيناريوهات الموقفية (24 سؤالاً)</button>
+        </div>
+
+        <div id="wizard-step" style="display: none;">
+            <div id="clientErrorBanner" class="error-banner">⚠️ يرجى اختيار إجابة صحيحة (أول ما يدور في ذهنك) قبل الانتقال للسؤال التالي.</div>
+            <div class="wizard-progress">
+                <span>الموقف الإداري: <span id="current-step-num">1</span> من <span id="total-steps-num">24</span></span>
+                <span id="percentage-num">4%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+
+            <div id="question-card-container"></div>
+
+            <div class="wizard-nav-btns">
+                <button class="btn btn-secondary" id="btn-prev" onclick="prevQuestion()" disabled>السابق</button>
+                <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()">التالي</button>
+                <button class="btn btn-success" id="btn-submit" onclick="submitAssessment()" style="display: none;">التسليم النهائي للاستبيان والحفظ السحابي 💾</button>
+            </div>
+        </div>
+
+        <div id="success-step" style="display: none;">
+            <div class="info-card" style="text-align: center; padding: 40px 20px;">
+                <h2 style="color: var(--primary-color);">تم تسليم إجابات التقييم الموقفي وحفظها سحابياً بنجاح 💾</h2>
+                <p style="font-size: 1.05rem;">تم إرسال تقرير الملاءمة والنمو السلوكي بشكل فوري إلى لوحة أخصائي المقابلات بمديرية التنمية الإدارية بمحافظة درعا.</p>
+                <button class="btn btn-primary" onclick="resetForm()">إجراء تقييم لموظف آخر</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let daraaStructureDB = [
+        { dept: "الإدارة العليا", title: "مدير المديرية الفرعية", category: "NF", specKeywords: ["إدارة", "حقوق", "اقتصاد", "هندسة"] },
+        { dept: "الإدارة العليا", title: "معاون مدير المديرية", category: "NF", specKeywords: ["إدارة", "حقوق", "اقتصاد", "هندسة"] },
+        { dept: "الإدارة العليا", title: "مدير مكتب", category: "SF", specKeywords: ["إدارة", "حقوق", "أدب", "معلوماتية"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "رئيس شعبة الرقابة الداخلية", category: "ST", specKeywords: ["حقوق", "اقتصاد", "محاسبة"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "مراقب داخلي", category: "ST", specKeywords: ["حقوق", "اقتصاد", "محاسبة"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "محقق إداري", category: "ST", specKeywords: ["حقوق"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "رئيس شعبة التخطيط والإحصاء", category: "NT", specKeywords: ["اقتصاد", "إحصاء", "إدارة"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "أخصائي تخطيط", category: "NT", specKeywords: ["اقتصاد", "إدارة"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "محلل إحصائي", category: "NT", specKeywords: ["إحصاء", "رياضيات", "اقتصاد"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "مدقق بيانات", category: "ST", specKeywords: ["معلوماتية", "إحصاء", "إدارة"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "رئيس شعبة الديوان", category: "ST", specKeywords: ["إدارة", "حقوق", "أدب"] },
+        { dept: "الوحدات المرتبطة مباشرة بالمدير", title: "موظف أرشيف", category: "ST", specKeywords: ["إدارة", "توثيق", "أدب"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "رئيس دائرة تخطيط وتوظيف الموارد البشرية", category: "NT", specKeywords: ["إدارة", "اقتصاد", "حقوق"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "رئيس شعبة تحليل وتخطيط الموارد البشرية", category: "NT", specKeywords: ["إدارة", "اقتصاد"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "أخصائي تخطيط وتوظيف موارد بشرية", category: "NT", specKeywords: ["إدارة", "اقتصاد"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "محلل بيانات موارد بشرية", category: "NT", specKeywords: ["إحصاء", "معلوماتية", "اقتصاد"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "رئيس شعبة الاختيار", category: "ST", specKeywords: ["إدارة", "حقوق", "علم نفس"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "أخصائي اختيار واستقطاب", category: "ST", specKeywords: ["إدارة", "علم نفس", "حقوق"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "رئيس شعبة الاحتياج الوظيفي", category: "ST", specKeywords: ["إدارة", "اقتصاد"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "رئيس شعبة الاستقطاب الداخلي", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة تخطيط وتوظيف الموارد البشرية", title: "منسق توظيف", category: "SF", specKeywords: ["إدارة", "أدب", "حقوق"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "رئيس دائرة بيانات الموارد البشرية", category: "ST", specKeywords: ["إدارة", "معلوماتية", "إحصاء"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "رئيس شعبة تدقيق البيانات", category: "ST", specKeywords: ["معلوماتية", "إحصاء", "إدارة"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "معالج بيانات", category: "ST", specKeywords: ["معلوماتية", "حاسوب"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "رئيس شعبة التحليل وجودة البيانات", category: "NT", specKeywords: ["إحصاء", "معلوماتية", "اقتصاد"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "محلل بيانات", category: "NT", specKeywords: ["إحصاء", "معلوماتية"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "رئيس شعبة النافذة الفرعية", category: "SF", specKeywords: ["إدارة", "حقوق", "حاسوب"] },
+        { dept: "دائرة بيانات الموارد البشرية", title: "موظف نافذة فرعية", category: "SF", specKeywords: ["إدارة", "حاسوب"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "رئيس دائرة التنظيم المؤسساتي", category: "NT", specKeywords: ["إدارة", "حقوق", "اقتصاد"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "رئيس شعبة التطوير التنظيمي", category: "NT", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "أخصائي تنظيم مؤسساتي", category: "NT", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "محلل تنظيمي", category: "NT", specKeywords: ["إدارة", "اقتصاد"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "رئيس شعبة هندسة وتصميم الوظائف", category: "NT", specKeywords: ["إدارة", "هندسة", "حقوق"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "أخصائي تصميم وظائف", category: "NT", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "رئيس شعبة اللوائح والأنظمة الداخلية", category: "ST", specKeywords: ["حقوق"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "أخصائي أنظمة داخلية", category: "ST", specKeywords: ["حقوق"] },
+        { dept: "دائرة التنظيم المؤسساتي", title: "رئيس شعبة الرقابة التنظيمية", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "رئيس دائرة هندسة العمليات وتحسين الخدمات", category: "NT", specKeywords: ["هندسة", "إدارة", "معلوماتية"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "رئيس شعبة تحليل وتوثيق العمليات", category: "NT", specKeywords: ["هندسة", "إدارة", "معلوماتية"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "أخصائي هندسة عمليات", category: "NT", specKeywords: ["هندسة", "إدارة"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "محلل إجراءات", category: "NT", specKeywords: ["إدارة", "معلوماتية"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "رئيس شعبة إعادة هندسة العمليات", category: "NT", specKeywords: ["هندسة", "إدارة"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "منسق تحسين خدمات", category: "SF", specKeywords: ["إدارة", "علاقات عامة"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "رئيس شعبة السياسات والمعايير", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "رئيس شعبة تحسين الخدمات", category: "SF", specKeywords: ["إدارة", "علاقات عامة"] },
+        { dept: "دائرة هندسة العمليات وتحسين الخدمات", title: "أخصائي جودة خدمات", category: "SF", specKeywords: ["إدارة", "جودة"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "رئيس دائرة التميز المؤسسي وقياس الأداء", category: "NF", specKeywords: ["إدارة", "اقتصاد", "جودة"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "رئيس شعبة التميز المؤسسي", category: "NF", specKeywords: ["إدارة", "جودة"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "أخصائي تميز مؤسسي", category: "NF", specKeywords: ["إدارة", "جودة"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "رئيس شعبة التخطيط الاستراتيجي", category: "NT", specKeywords: ["إدارة", "اقتصاد"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "أخصائي تخطيط استراتيجي", category: "NT", specKeywords: ["إدارة", "اقتصاد"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "رئيس شعبة قياس الأداء المؤسسي", category: "ST", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "أخصائي قياس أداء", category: "ST", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "رئيس شعبة جودة الخدمات الحكومية", category: "SF", specKeywords: ["إدارة", "جودة"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "أخصائي جودة", category: "SF", specKeywords: ["إدارة", "جودة"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "رئيس شعبة الابتكار والتحسين المستمر", category: "NF", specKeywords: ["إدارة", "ابتكار"] },
+        { dept: "دائرة التميز المؤسسي وقياس الأداء", title: "أخصائي ابتكار", category: "NF", specKeywords: ["إدارة", "ابتكار"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "رئيس دائرة تقييم وإدارة الأداء", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "رئيس شعبة متابعة دورة تقييم الأداء", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "أخصائي تقييم أداء", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "مدقق بيانات أداء", category: "ST", specKeywords: ["إحصاء", "معلوماتية"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "رئيس شعبة تحليل النتائج وتطوير الأداء", category: "NT", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "محلل أداء وظيفي", category: "NT", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة تقييم وإدارة الأداء", title: "منسق خطط تطوير فردي", category: "NF", specKeywords: ["إدارة", "علم نفس"] },
+        { dept: "دائرة بناء القدرات", title: "رئيس دائرة بناء القدرات", category: "NF", specKeywords: ["إدارة", "تربية", "علم نفس"] },
+        { dept: "دائرة بناء القدرات", title: "رئيس شعبة تحليل الاحتياج التدريبي والتخطيط", category: "NT", specKeywords: ["إدارة", "تربية"] },
+        { dept: "دائرة بناء القدرات", title: "أخصائي احتياج تدريبي", category: "NT", specKeywords: ["إدارة", "تربية"] },
+        { dept: "دائرة بناء القدرات", title: "محلل بيانات تدريب", category: "ST", specKeywords: ["إحصاء", "معلوماتية"] },
+        { dept: "دائرة بناء القدرات", title: "رئيس شعبة قياس أثر التدريب", category: "ST", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة بناء القدرات", title: "أخصائي قياس أثر", category: "ST", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة بناء القدرات", title: "رئيس شعبة التدريب الرقمي", category: "NT", specKeywords: ["معلوماتية", "تقانة"] },
+        { dept: "دائرة بناء القدرات", title: "منسق تدريب رقمي", category: "NT", specKeywords: ["معلوماتية", "تقانة"] },
+        { dept: "دائرة بناء القدرات", title: "رئيس شعبة القيادات الحكومية", category: "NF", specKeywords: ["إدارة", "علوم سياسية"] },
+        { dept: "دائرة بناء القدرات", title: "منسق القيادات الحكومية", category: "NF", specKeywords: ["إدارة", "علوم سياسية"] },
+        { dept: "دائرة المراكز التدريبية", title: "رئيس دائرة المراكز التدريبية", category: "SF", specKeywords: ["إدارة", "تربية"] },
+        { dept: "دائرة المراكز التدريبية", title: "رئيس شعبة المتابعة والإشراف", category: "ST", specKeywords: ["إدارة"] },
+        { dept: "دائرة المراكز التدريبية", title: "منسق برامج تدريبية", category: "SF", specKeywords: ["إدارة", "علاقات عامة"] },
+        { dept: "دائرة المراكز التدريبية", title: "رئيس شعبة شؤون المدربين", category: "SF", specKeywords: ["إدارة", "علاقات عامة"] },
+        { dept: "دائرة المراكز التدريبية", title: "موظف شؤون مدربين", category: "SF", specKeywords: ["إدارة"] },
+        { dept: "دائرة المراكز التدريبية", title: "رئيس شعبة المركز التدريبي", category: "SF", specKeywords: ["إدارة"] },
+        { dept: "دائرة المراكز التدريبية", title: "مدير مركز تدريبي", category: "NF", specKeywords: ["إدارة", "تربية"] },
+        { dept: "دائرة المراكز التدريبية", title: "موظف لوجستي", category: "ST", specKeywords: ["إدارة", "خدمات"] },
+        { dept: "دائرة المراكز التدريبية", title: "موظف تشغيل تقني", category: "NT", specKeywords: ["معلوماتية", "صيانة"] },
+        { dept: "دائرة تنمية الثقافة المؤسسية", title: "رئيس دائرة تنمية الثقافة المؤسسية", category: "NF", specKeywords: ["إدارة", "إعلام", "علم نفس"] },
+        { dept: "دائرة تنمية الثقافة المؤسسية", title: "رئيس شعبة التمكين والعلاقة مع الجهات", category: "NF", specKeywords: ["إدارة", "إعلام"] },
+        { dept: "دائرة تنمية الثقافة المؤسسية", title: "أخصائي ثقافة مؤسسية", category: "NF", specKeywords: ["إدارة", "علم نفس"] },
+        { dept: "دائرة تنمية الثقافة المؤسسية", title: "منسق تمكين وتوعية", category: "NF", specKeywords: ["إعلام", "تربية"] },
+        { dept: "دائرة تنمية الثقافة المؤسسية", title: "رئيس شعبة القياس والمتابعة الميدانية", category: "ST", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة تنمية الثقافة المؤسسية", title: "أخصائي قياس ثقافة", category: "ST", specKeywords: ["إدارة", "إحصاء"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "رئيس دائرة شؤون الموارد البشرية والقانونية", category: "ST", specKeywords: ["حقوق", "إدارة"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "رئيس شعبة شؤون الموارد البشرية", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "أخصائي موارد بشرية", category: "ST", specKeywords: ["إدارة"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "شؤون عاملين", category: "ST", specKeywords: ["إدارة", "حقوق"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "رئيس شعبة الشؤون القانونية", category: "ST", specKeywords: ["حقوق"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "باحث قانوني", category: "ST", specKeywords: ["حقوق"] },
+        { dept: "دائرة شؤون الموارد البشرية والقانونية", title: "موظف عقود وقضايا", category: "ST", specKeywords: ["حقوق"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "رئيس دائرة الدعم والخدمات المساندة", category: "ST", specKeywords: ["اقتصاد", "إدارة", "محاسبة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "رئيس شعبة الشؤون المالية", category: "ST", specKeywords: ["اقتصاد", "محاسبة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "محاسب", category: "ST", specKeywords: ["اقتصاد", "محاسبة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "رئيس شعبة الدعم التنفيذي", category: "ST", specKeywords: ["إدارة", "تجارة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "موظف مشتريات", category: "ST", specKeywords: ["إدارة", "تجارة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "أمين مستودع", category: "ST", specKeywords: ["إدارة", "محاسبة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "موظف أصول", category: "ST", specKeywords: ["إدارة", "محاسبة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "رئيس شعبة الخدمات العامة", category: "ST", specKeywords: ["إدارة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "موظف خدمات وصيانة", category: "ST", specKeywords: ["مهني", "صيانة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "عامل متعدد المهام", category: "ST", specKeywords: ["خدمات"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "رئيس شعبة التقانة والتحول الرقمي", category: "NT", specKeywords: ["هندسة", "معلوماتية", "تقانة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "فني تقانة معلومات", category: "NT", specKeywords: ["معلوماتية", "حاسوب"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "دعم تقني", category: "NT", specKeywords: ["معلوماتية", "صيانة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "رئيس شعبة الاتصال الحكومي", category: "SF", specKeywords: ["إعلام", "علاقات عامة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "منسق اتصال حكومي", category: "SF", specKeywords: ["إعلام", "علاقات عامة"] },
+        { dept: "دائرة الدعم والخدمات المساندة", title: "إعلامي", category: "SF", specKeywords: ["إعلام", "صحافة"] }
+    ];
+
+    const scenariosData = [
+        { q: "1. واجهتك ضغوط نفسية هائلة وتراكم غير مسبوق في إنجاز المعاملات بمديرية درعا في نهاية الدوام، كيف تتصرف؟", options: [{text: "أقوم بترتيب المهام بحزم وهدوء وفق الأولوية القانونية والزمنية.", val: "T"}, {text: "أتحدث بشفافية مع زملائي لمشاركة الأعباء والدعم المعنوي.", val: "F"}, {text: "أستمر بالعمل المنظم وفق جدول زمني صارم ومحدد.", val: "J"}, {text: "أتعامل بمرونة مطلقة وأنجز ما أستطيع بطرق مبتكرة سريعة.", val: "P"}]},
+        { q: "2. خلال اجتماع تخصصي ساخن، وجه إليك أحد الزملاء نقداً حاداً غير موضوعي أمام الإدارة، ما هي ردة فعلكم؟", options: [{text: "أحافظ على ضبط نفسي، وأرد بهدوء مستنداً إلى الأدلة والموضوعية.", val: "T"}, {text: "أحتفظ بهدوئي وأحاول تفهم دوافع زميلي ومراعاة مشاعره لاحقاً.", val: "F"}, {text: "ألتزم بالبروتوكول الإداري واللائحة الداخلية متجنباً المهاترات.", val: "J"}, {text: "أستوعب الموقف بمرونة وسعة صدر وأحول النقاش لإيجابي.", val: "P"}]},
+        { q: "3. طُلب منك تطبيق تعميم إداري جديد يتطلب إجراءات معقدة، وتخوف الزملاء، كيف تقود الموقف؟", options: [{text: "أقوم بتحليل التعميم قانونياً وتقنياً وأوزع المهام بموضوعية.", val: "T"}, {text: "أعقد جلسة استماع ومصارحة لامتصاص المخاوف وتقديم الدعم.", val: "F"}, {text: "أضع خطة تنفيذية دقيقة ومجدولة بمراحل زمنية واضحة.", val: "J"}, {text: "أبتكر أسلوباً مرناً لتطبيق التعميم تدريجياً لكسر الجمود.", val: "P"}]},
+        { q: "4. اكتشفت خطأً قانونياً تقنياً كبيراً في معاملة أنجزها زميل مقرب، وترتب على ذلك تبعات، ما تصرفك؟", options: [{text: "أرفع تقريراً موضوعياً فورياً وصارماً متضمناً الحقائق القانونية.", val: "T"}, {text: "أتناقش مع الزميل بلطف لمساعدته في تصحيح الخطأ ذاتياً.", val: "F"}, {text: "أتبع المسار الإجرائي الرسمي المعتمد لتعديل المعاملة بدقة.", val: "J"}, {text: "أقترح آلية تصحيح مرنة تعالج الخلل دون تضخيم للمشكلة.", val: "P"}]},
+        { q: "5. تعرضت لموقف استفزازي شديد من أحد المراجعين الغاضبين في النافذة، كيف تدير انفعالك؟", options: [{text: "أفصل مشاعري تماماً وأتعامل وفق القوانين والأنظمة بحياد.", val: "T"}, {text: "أستمع بتعاطف واهتمام بالغ لمشكلة المراجع وأقدم له الدعم.", val: "F"}, {text: "ألتزم بالتعليمات الإجرائية وأضبط إيقاع الحوار بالحدود الرسمية.", val: "J"}, {text: "أتعامل بمرونة عالية وحلول بديلة ذكية تهدئ المراجع.", val: "P"}]},
+        { q: "6. كُلفت بمهمة طارئة خارج أوقات الدوام الرسمي تتعلق ببيانات المديرية، ما موقفك؟", options: [{text: "أقيم الأهمية الموضوعية والجدوى وأباشر بتنفيذها بحزم.", val: "T"}, {text: "ألبي النداء بروح الفريق لمساندة زملائي وتحمل المسؤولية.", val: "F"}, {text: "أنظم وقتي بدقة وألتزم بالموعد المحدد للإنجاز التام.", val: "J"}, {text: "أتكيف مع الظرف الطارئ وأبتكر طريقة سريعة ومختصرة.", val: "P"}]},
+        { q: "7. عندما تلاحظ تدنياً ملحوظاً في حماس أحد الزملاء أو المرؤوسين، كيف تحفزه؟", options: [{text: "أواجهه بمؤشرات الأداء الرقمية وأطالبه بتحسين إنتاجيته.", val: "T"}, {text: "أجلس معه جلسة ودية لأستمع لظروفه وتقديم التوجيه اللازم.", val: "F"}, {text: "أضع له برنامج عمل ومواعيد واضحة ومحددة لمتابعة تقدمه.", val: "J"}, {text: "أكلفه بمهام متجددة ومتنوعة تكسر روتين عمله وتعيد شغفه.", val: "P"}]},
+        { q: "8. حدث تضارب في الأولويات بين تعليمات شفوية عاجلة من الإدارة وبين خطة عمل مرسومة، ماذا تفعل؟", options: [{text: "أحتكم إلى المعايير الموضوعية والأهمية الإدارية العالية بحزم.", val: "T"}, {text: "أستشير المسؤول وأناقش أثر التعديل على جهد الفريق بإيجابية.", val: "F"}, {text: "أعد جدولاً تنظيمياً جديداً يستوعب الطارئ دون الإخلال بالخطة.", val: "J"}, {text: "أتعامل بمرونة تامة وأعيد تدوير المهام بسرعة فائقة.", val: "P"}]},
+        { q: "9. توفرت فرصة لتطبيق تقنية حديثة في أرشفة البيانات تتطلب جهداً ذهنياً شاقاً ومهارات جديدة:", options: [{text: "أدرس الجدوى التقنية وأباشر بتطبيقها لتحقيق الكفاءة القصوى.", val: "T"}, {text: "أستعين بالزملاء وأتبادل الخبرات لنتعلم التقنية معاً بروح الفريق.", val: "F"}, {text: "ألتزم بخطة تعلم صارمة ومجدولة أسبوعياً حتى أتقن النظام بدقة.", val: "J"}, {text: "أجرب عدة طرق مبتكرة وحرة باكتشاف ذاتي سريع.", val: "P"}]},
+        { q: "10. واجهتك مشكلة قانونية معقدة في تفسير إحدى المواد أثناء دراسة ملف إحداث وحدة إدارية:", options: [{text: "أعود إلى السوابق التشريعية والنصوص الصريحة لأستخلص التفسير.", val: "T"}, {text: "أستشير ذوي الخبرة وأتواصل مع الزملاء القانونيين لتوحيد الرؤى.", val: "F"}, {text: "أتبع الخطوات المنهجية المعتمدة في إعداد الدراسات بدقة.", val: "J"}, {text: "أقترح تفسيراً مرناً يتوافق مع روح القانون ويتكيف مع الواقع بالحكمة.", val: "P"}]},
+        { q: "11. شعرت بحالة إرهاق وملل روتيني من تكرار الأعمال المكتبية اليومية، كيف تتغلب عليها؟", options: [{text: "أركز ذهنياً على الأهداف الكبرى والنتائج الإنجازية بموضوعية.", val: "T"}, {text: "أجدد طاقتي عبر تبادل الحديث الإيجابي والداعم مع الزملاء.", val: "F"}, {text: "أعيد تنظيم مكتبي وجدول أعمالي اليومي وفق ترتيبات صارمة.", val: "J"}, {text: "أبتكر أساليب جديدة ومختلفة في أداء مهامي الروتينية.", val: "P"}]},
+        { q: "12. كُلفت بمهمة تتطلب خبرة تقنية متقدمة في البرمجيات وتحليل البيانات وأنت تمتلك خلفية متوسطة:", options: [{text: "أقيم قدراتي وأضع خطة مكثفة لتعلم المهارات الناقصة بحزم.", val: "T"}, {text: "أطلب مساعدة خبير تقني وأتعاون معه لإنجاز المهمة بنجاح مشترك.", val: "F"}, {text: "أضع جدولاً زمنياً للتعلم والإنجاز جنباً إلى جنب بانضباط عالٍ.", val: "J"}, {text: "أعتمد على التجربة والخطأ والاكتشاف الحر السريع للبرمجية.", val: "P"}]},
+        { q: "13. قام أحد الأشخاص بترويج معلومات غير صحيحة عن أداء دائرتك بقصد الإساءة للجهود:", options: [{text: "أرد بالحقائق الرقمية الدقيقة والتقارير الموثقة بموضوعية تامة.", val: "T"}, {text: "أتواصل بهدوء لاحتواء سوء الفهم وتوضيح الصورة بروح راقية.", val: "F"}, {text: "أوثق الموقف رسمياً وأرفع إحاطة نظامية للإدارة وفق السياق السليم.", val: "J"}, {text: "أتعامل بمرونة تعكس نجاح أعمالنا على الأرض متجاوزاً الأقاويل.", val: "P"}]},
+        { q: "14. طُلب منك إعداد تقييم أداء لموظف غير منضبط ولديك علاقة شخصية طيبة معه:", options: [{text: "أفصل تماماً بين العواطف ومعايير التقييم الموضوعية للأرقام.", val: "T"}, {text: "أصارح الموظف بمحبة وشفافية عن نقاط ضعفه وأمنحه فرصة للإصلاح.", val: "F"}, {text: "ألتزم بالمعايير والنماذج الرسمية ومواعيد التقييم بدقة متناهية.", val: "J"}, {text: "أقترح فترة إضافية مرنة لمراقبة أدائه وإعادة تقييمه بشكل منصف.", val: "P"}]},
+        { q: "15. واجهت ثغرة قانونية أو إجرائية غامضة في أحد الأدلة الوطنية المعتمدة أثناء مراجعة هيكل إداري:", options: [{text: "أوثق الثغرة بدقة وأرفع مقترحاً تعديلياً مستنداً للمنطق القانوني.", val: "T"}, {text: "أناقش الثغرة مع فريق العمل للاستئناس بآرائهم للوصول لرؤية منصفة.", val: "F"}, {text: "ألتزم بالنص القائم بدقة ريثما يصدر توضيح رسمي منعاً للاجتهاد.", val: "J"}, {text: "أقترح معالجة مرنة ومؤقتة تتناسب مع الواقع لحين سد الثغرة.", val: "P"}]},
+        { q: "16. كُلفت بإدارة ورشة عمل تدريبية فجائية لعدد كبير من العاملين الجدد وسط توتر وقلق ظاهر:", options: [{text: "أبدأ الورشة بعرض دقيق ومنظم للأهداف والمحاور لتبديد القلق.", val: "T"}, {text: "أرحب بالحضور بعبارات دافئة ومطمئنة لكسر الجمود وبث الثقة.", val: "F"}, {text: "ألتزم بالبرنامج الزمني والمحتوى المقرر للورشة بمنهجية صارمة.", val: "J"}, {text: "أدير الورشة بمرونة عالية وحوار تفاعلي حر يزيل التوتر.", val: "P"}]},
+        { q: "17. تفاجأت بوجود خطأ تراكمي في الأرشيف اليدوي والإلكتروني لأحد السجلات الرسمية الهامة:", options: [{text: "أشكل فريق تدقيق فوري لفرز الأخطاء وتصحيحها بمنهجية صارمة.", val: "T"}, {text: "أهدئ روع الفريق وأوزع المهام بروح التعاون لتجاوز الأزمة بهدوء.", val: "F"}, {text: "أضع خطة عمل مجدولة بساعات واضحة لإنهاء التدقيق والتصحيح.", val: "J"}, {text: "أبتكر طريقة سريعة ومختصرة لتنقية السجلات واستدراك النقص.", val: "P"}]},
+        { q: "18. أظهرت نتائج قياس رضا المتعاملين انخفاضاً نسبياً في أحد مراكز الخدمة التابعة للمديرية:", options: [{text: "أحلل البيانات الإحصائية للشكاوى وأحدد الأسباب بموضوعية.", val: "T"}, {text: "أزور المركز وأستمع لمشاعر وملاحظات المراجعين والعاملين بحرص.", val: "F"}, {text: "أضع خطة تصحيحية صارمة وملزمة للمركز خلال فترة محددة.", val: "J"}, {text: "أبتكر حلولاً خدمية سريعة ومرنة لرفع مستوى الرضا وكسب الثقة.", val: "P"}]},
+        { q: "19. رفض أحد المرؤوسين تنفيذ توجيه إداري مشروع بحجة صعوبته وكثرة أعبائه:", options: [{text: "أذكره بالمسؤوليات الوظيفية وبطاقة الوصف وأطالبه بالتنفيذ بحزم.", val: "T"}, {text: "أستمع لمعاناته وأقدم له الدعم ومساعدة في تجزئة المهام.", val: "F"}, {text: "أوضح له الجدول الزمني والالتزام الإداري المفروض على الجميع.", val: "J"}, {text: "أمنحه مرونة مؤقتة في أسلوب الإنجاز طالما النتيجة ستتحقق.", val: "P"}]},
+        { q: "20. طُلب منك تقديم عرض تقديمي استراتيجي أمام المحافظ والإدارة المركزية بوقت قصير جداً:", options: [{text: "أركز على صياغة الأرقام والمؤشرات والبيانات الدقيقة بتركيز عالٍ.", val: "T"}, {text: "أستعين بزملائي لمراجعة العرض وتهدئة توتري بروح الفريق.", val: "F"}, {text: "أقسم وقت التحضير المتبقي إلى مراحل دقيقة ومنظمة لضمان الجاهزية.", val: "J"}, {text: "أعتمد على البديهة والمرونة العالية والخبرة الميدانية لتقديم عرض.", val: "P"}]},
+        { q: "21. لاحظت وجود هدر في استهلاك المستلزمات المكتبية والتقنية ضمن شعبتك الإدارية:", options: [{text: "أضع ضوابط رقمية وإحصائية صارمة لترشيد الاستهلاك ومراقبة الأصول.", val: "T"}, {text: "أناقش الزملاء بأسلوب توعوي حول أهمية الحفاظ على المال العام.", val: "F"}, {text: "أصيغ تعميماً داخلياً يحدد حصص الاستهلاك والمواعيد المعتمدة.", val: "J"}, {text: "أبتكر أساليب إعادة تدوير واستخدام مرنة تقلل الهدر دون تعطيل.", val: "P"}]},
+        { q: "22. حدث تعارض في المواعيد بين مهمة رقابية ميدانية طارئة وبين اجتماع تنسيقي هام لدائرة بناء القدرات:", options: [{text: "أقيم الأهمية والجدوى وأعطي الأولوية للمهمة الأكثر تأثيراً بحزم.", val: "T"}, {text: "أنسق لتأمين ممثل بديل يحضر نيابة عني لضمان استمرار التواصل.", val: "F"}, {text: "أعيد جدولة المواعيد وفق خطة دقيقة تضمن حضوري بحسب الإمكان.", val: "J"}, {text: "أتعامل بمرونة عالية وأدير الحدثين بطريقة متزامنة ومبتكرة.", val: "P"}]},
+        { q: "23. وردت توجيهات مركزية جديدة تتطلب تعديلاً جذرياً على آلية إنجاز معاملة معتمدة منذ سنوات:", options: [{text: "أحلل التعديلات القانونية والتقنية وأباشر بتطبيقها فوراً دون تردد.", val: "T"}, {text: "أشرح للزملاء أهداف التعديل وأمتص مخاوفهم بروح الدعم والتحفيز.", val: "F"}, {text: "أعد خطة عمل إجرائية ومجدولة لمراحل الانتقال للنظام الجديد.", val: "J"}, {text: "أبتكر مسارات مرنة تسهل انتقال الموظفين للآلية الجديدة بيسر.", val: "P"}]},
+        { q: "24. واجهت موقفاً يقتضي اتخاذ قرار إداري حاسم وفوري في غياب المدير وبدون نص تفصيلي:", options: [{text: "أحتكم إلى روح القوانين العامة والمصلحة المؤسسية العليا بموضوعية.", val: "T"}, {text: "أتشاور مع أقدم الزملاء وأوثق القرار جماعياً لضمان الأمان الإداري.", val: "F"}, {text: "أتخذ القرار وفق التسلسل الإجرائي الأقرب للأنظمة المرعية بانضباط.", val: "J"}, {text: "أتحمل المسؤولية وأتخذ قراراً مرناً ومبتكراً يحل المشكلة الطارئة.", val: "P"}]}
+    ];
+
+    const patternDetailsMap = {
+        "ST": { typeName: "المنفذ الرقابي والمحاور الميداني (ST)", group: "ST", unit: "المديريات التنفيذية والرقابية والخدمية" },
+        "NT": { typeName: "المبتكر الاستراتيجي والتقني (NT)", group: "NT", unit: "مديريات التخطيط والتحول الرقمي والتطوير" },
+        "SF": { typeName: "الدبلوماسي الخدمي وممثل المتعاملين (SF)", group: "SF", unit: "مديريات خدمة المواطن والعلاقات العامة" },
+        "NF": { typeName: "القائد التمكيني ومطور الكوادر (NF)", group: "NF", unit: "إدارة التميز وبناء القدرات والثقافة المؤسسية" }
+    };
+
+    let currentQuestionIdx = 0;
+    let userAnswers = {};
+    let employeeData = {};
+
+    window.onload = function() {
+        populateJobSelects();
+    };
+
+    function populateJobSelects() {
+        const selectMain = document.getElementById('empJobSelect');
+        selectMain.innerHTML = '<option value="">-- اختر الشاغر المعتمد بمحافظة درعا --</option>';
+        let currentDept = "";
+        let optGroup = null;
+
+        daraaStructureDB.forEach(job => {
+            if(job.dept !== currentDept) {
+                currentDept = job.dept;
+                optGroup = document.createElement('optgroup');
+                optGroup.label = currentDept;
+                selectMain.appendChild(optGroup);
+            }
+            let opt = document.createElement('option');
+            opt.value = job.title;
+            opt.textContent = job.title;
+            if(optGroup) optGroup.appendChild(opt); else selectMain.appendChild(opt);
+        });
+
+        let customOpt = document.createElement('option');
+        customOpt.value = "ADD_NEW_CUSTOM_JOB";
+        customOpt.textContent = "➕ [إضافة شاغر جديد غير مدرج بالبطاقات...]";
+        selectMain.appendChild(customOpt);
+    }
+
+    function checkNewJobOption(val) {
+        document.getElementById('new-job-custom-card').style.display = (val === "ADD_NEW_CUSTOM_JOB") ? 'block' : 'none';
+    }
+
+    function addNewJobToStructure() {
+        const title = document.getElementById('newJobTitle').value.trim();
+        const dept = document.getElementById('newJobDept').value.trim() || "شواغر مضافة حديثاً";
+        const specStr = document.getElementById('newJobSpec').value.trim();
+        if(!title || !specStr) { alert('يرجى كتابة اسم الشاغر والاختصاصات المطلوبة.'); return; }
+        const specKeywords = specStr.split(/[\s,\-/]+/).filter(Boolean);
+        daraaStructureDB.push({ dept, title, category: "ST", specKeywords });
+        populateJobSelects();
+        document.getElementById('empJobSelect').value = title;
+        document.getElementById('new-job-custom-card').style.display = 'none';
+        alert(`تمت إضافة الشاغر (${title}) واعتماده بنجاح.`);
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        if(tabId === 'guide-tab') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('guide-tab').classList.add('active');
+        } else {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('test-tab').classList.add('active');
+        }
+    }
+
+    function startWizard() {
+        const name = document.getElementById('empName').value.trim();
+        const phone = document.getElementById('empPhone').value.trim();
+        const edu = document.getElementById('empEdu').value.trim();
+        const exp = document.getElementById('empExp').value.trim();
+        const job = document.getElementById('empJobSelect').value;
+
+        if(!name || !phone || !edu || !exp || !job || job === "ADD_NEW_CUSTOM_JOB") {
+            alert('⚠️ يرجى تعبئة كافة البيانات المطلوبة بدقة واختيار الشاغر الوظيفي.');
+            return;
+        }
+        employeeData = { name, phone, edu, exp, job };
+        document.getElementById('employee-info-step').style.display = 'none';
+        document.getElementById('wizard-step').style.display = 'block';
+        currentQuestionIdx = 0;
+        userAnswers = {};
+        renderQuestionStep();
+    }
+
+    function renderQuestionStep() {
+        document.getElementById('clientErrorBanner').style.display = 'none';
+        const container = document.getElementById('question-card-container');
+        const qObj = scenariosData[currentQuestionIdx];
+        document.getElementById('current-step-num').innerText = currentQuestionIdx + 1;
+        document.getElementById('total-steps-num').innerText = scenariosData.length;
+        let pct = Math.round(((currentQuestionIdx + 1) / scenariosData.length) * 100);
+        document.getElementById('percentage-num').innerText = pct + '%';
+        document.getElementById('progress-fill').style.width = pct + '%';
+
+        let optionsHTML = '';
+        qObj.options.forEach(opt => {
+            let isChecked = (userAnswers[currentQuestionIdx] === opt.val) ? 'checked' : '';
+            optionsHTML += `
+                <label class="option-label">
+                    <input type="radio" name="q_radio" value="${opt.val}" ${isChecked} onclick="userAnswers[currentQuestionIdx]='${opt.val}'; document.getElementById('clientErrorBanner').style.display='none';">
+                    <span>${opt.text}</span>
+                </label>
+            `;
+        });
+        container.innerHTML = `<div class="question-card"><div class="question-title">${qObj.q}</div><div class="options-container">${optionsHTML}</div></div>`;
+        document.getElementById('btn-prev').disabled = (currentQuestionIdx === 0);
+        
+        if (currentQuestionIdx === scenariosData.length - 1) {
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-submit').style.display = 'inline-block';
+        } else {
+            document.getElementById('btn-next').style.display = 'inline-block';
+            document.getElementById('btn-submit').style.display = 'none';
+        }
+    }
+
+    function nextQuestion() {
+        if (!userAnswers[currentQuestionIdx]) { 
+            document.getElementById('clientErrorBanner').style.display = 'block';
+            window.scrollTo({ top: 100, behavior: 'smooth' });
+            return; 
+        }
+        if (currentQuestionIdx < scenariosData.length - 1) { 
+            currentQuestionIdx++; 
+            renderQuestionStep(); 
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIdx > 0) { 
+            currentQuestionIdx--; 
+            renderQuestionStep(); 
+        }
+    }
+
+    function submitAssessment() {
+        if (!userAnswers[currentQuestionIdx]) { 
+            document.getElementById('clientErrorBanner').style.display = 'block';
+            window.scrollTo({ top: 100, behavior: 'smooth' });
+            return; 
+        }
+
+        let scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+        Object.values(userAnswers).forEach(val => { if (scores[val] !== undefined) scores[val]++; });
+
+        let pattern = [
+            scores.E >= scores.I ? 'E' : 'I',
+            scores.S >= scores.N ? 'S' : 'N',
+            scores.T >= scores.F ? 'T' : 'F',
+            scores.J >= scores.P ? 'J' : 'P'
+        ].join('');
+
+        let mainGroup = (pattern.includes('S') && pattern.includes('T')) ? 'ST' :
+                        (pattern.includes('N') && pattern.includes('T')) ? 'NT' :
+                        (pattern.includes('S') && pattern.includes('F')) ? 'SF' : 'NF';
+
+        let patternInfo = patternDetailsMap[mainGroup];
+        let jobObj = daraaStructureDB.find(j => j.title === employeeData.job);
+
+        let eduText = employeeData.edu.toLowerCase();
+        let isSpecValid = false;
+        if (jobObj && jobObj.specKeywords) {
+            isSpecValid = jobObj.specKeywords.some(keyword => eduText.includes(keyword.toLowerCase()));
+        }
+
+        let isCategoryMatch = (jobObj && jobObj.category === mainGroup);
+        let isFit = (isCategoryMatch && isSpecValid);
+
+        let fitReason = isFit ? 
+            `قبول وملاءمة عالية: النمط السلوكي للمتقدم (${patternInfo.typeName}) يتطابق تماماً مع متطلبات الشاغر، والاختصاص الأكاديمي (${employeeData.edu}) يطابق الشروط الإلزامية.` :
+            `عدم ملاءمة الشاغر (رفض / إعادة توجيه): عدم توافق تام بين النمط السلوكي أو الاختصاص. يُوصى بتوجيهه إلى (${patternInfo.unit}).`;
+
+        let newRecord = {
+            name: employeeData.name,
+            phone: employeeData.phone,
+            edu: employeeData.edu,
+            exp: employeeData.exp,
+            jobCurrent: employeeData.job,
+            dept: jobObj ? jobObj.dept : "غير محدد",
+            pattern, 
+            mainGroup,
+            testTypeName: patternInfo.typeName,
+            isFit,
+            fitReason,
+            suggestedUnit: patternInfo.unit,
+            finalJobDecision: "", 
+            finalNotes: "",
+            crucialAnswer: "",
+            date: new Date().toLocaleDateString('ar-SY')
+        };
+
+        // إرسال البيانات مباشرة إلى قاعدة بيانات Firebase السحابية
+        const newRef = db.ref('daraa_records').push();
+        newRef.set(newRecord, (error) => {
+            if (error) {
+                alert('حدث خطأ أثناء الاتصال بالسيرفر السحابي، يرجى المحاولة لاحقاً.');
+            } else {
+                document.getElementById('wizard-step').style.display = 'none';
+                document.getElementById('success-step').style.display = 'block';
+            }
+        });
+    }
+
+    function resetForm() {
+        document.getElementById('empName').value = '';
+        document.getElementById('empPhone').value = '';
+        document.getElementById('empEdu').value = '';
+        document.getElementById('empExp').value = '';
+        document.getElementById('empJobSelect').value = '';
+        document.getElementById('success-step').style.display = 'none';
+        document.getElementById('employee-info-step').style.display = 'block';
+    }
+</script>
+</body>
+</html>
